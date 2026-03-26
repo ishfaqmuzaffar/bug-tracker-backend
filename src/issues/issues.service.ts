@@ -24,7 +24,7 @@ export class IssuesService {
           ...(attachment
             ? {
                 attachmentName: attachment.originalname,
-                attachmentPath: attachment.path.replaceAll('\\', '/'),
+                attachmentPath: attachment.path.replace(/\\/g, '/'),
                 attachmentMimeType: attachment.mimetype,
               }
             : {}),
