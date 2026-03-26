@@ -4,5 +4,5 @@ export class UpdateIssueStatusDto {
   @IsString()
   @IsNotEmpty()
   @IsIn(['Open', 'In Progress', 'Resolved', 'Closed'])
-  status: string;
+  status!: string;
 }
