@@ -8,9 +8,10 @@ RUN npm install
 
 COPY . .
 
-# ✅ FIXED LINE
+# Fix Prisma permission
 RUN chmod +x ./node_modules/.bin/prisma && ./node_modules/.bin/prisma generate
 
-RUN npm run build
+# Fix TypeScript permission
+RUN chmod +x ./node_modules/.bin/tsc && ./node_modules/.bin/tsc
 
 CMD ["node", "dist/main.js"]
