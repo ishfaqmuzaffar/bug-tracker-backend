@@ -4,8 +4,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "dev": "ts-node-dev --respawn src/main.ts",
-    "prisma": "prisma"
+    "dev": "ts-node-dev --respawn src/main.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -24,6 +23,7 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "@types/bcrypt": "^5.0.0"
   }
 }
