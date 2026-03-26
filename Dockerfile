@@ -7,6 +7,9 @@ RUN npm install
 
 COPY . .
 
+# 👉 ADD THIS LINE (VERY IMPORTANT)
+RUN npx prisma generate
+
 RUN npm run build
 
 CMD ["node", "dist/main.js"]
