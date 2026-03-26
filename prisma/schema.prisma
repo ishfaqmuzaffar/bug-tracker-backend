@@ -8,25 +8,30 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  password String
-  role     String
-  issues   Issue[]  @relation("AssignedIssues")
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Issue {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String
-  status      String
-  priority    String
-  createdAt   DateTime  @default(now())
+  id                 Int       @id @default(autoincrement())
+  title              String
+  description        String
+  status             String
+  priority           String
+  project            String
+  assignee           String
+  reporter           String
+  attachmentName     String?
+  attachmentPath     String?
+  attachmentMimeType String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  assignedTo  User?     @relation("AssignedIssues", fields: [assignedToId], references: [id])
-  assignedToId Int?
-
-  comments    Comment[]
+  comments           Comment[]
 }
 
 model Comment {
@@ -34,6 +39,6 @@ model Comment {
   message   String
   createdAt DateTime @default(now())
 
-  issue     Issue    @relation(fields: [issueId], references: [id])
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
   issueId   Int
 }
