@@ -35,15 +35,6 @@ export class IssuesService {
       });
     } catch (error: any) {
       console.error('Create issue error:', error);
-
-      if (error?.code === 'P2002') {
-        throw new BadRequestException('Duplicate issue data is not allowed.');
-      }
-
-      if (error?.code === 'P2003') {
-        throw new BadRequestException('Invalid related record provided.');
-      }
-
       throw new InternalServerErrorException(
         error?.message || 'Failed to create issue.',
       );
@@ -51,10 +42,17 @@ export class IssuesService {
   }
 
   async findAll() {
-    return this.prisma.issue.findMany({
-      include: { comments: true },
-      orderBy: { id: 'desc' },
-    });
+    try {
+      return await this.prisma.issue.findMany({
+        include: { comments: true },
+        orderBy: { id: 'desc' },
+      });
+    } catch (error: any) {
+      console.error('Find all issues error:', error);
+      throw new InternalServerErrorException(
+        error?.message || 'Failed to fetch issues.',
+      );
+    }
   }
 
   async updateStatus(id: number, status: string) {
