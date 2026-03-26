@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  role     String
+  issues   Issue[]  @relation("AssignedIssues")
+}
+
+model Issue {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  status      String
+  priority    String
+  createdAt   DateTime  @default(now())
+
+  assignedTo  User?     @relation("AssignedIssues", fields: [assignedToId], references: [id])
+  assignedToId Int?
+
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   Int
+}
