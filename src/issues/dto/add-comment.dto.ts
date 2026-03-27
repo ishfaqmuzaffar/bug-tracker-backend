@@ -4,5 +4,5 @@ export class AddCommentDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(1000)
-  message: string;
+  message!: string;
 }
