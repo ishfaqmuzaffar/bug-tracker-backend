@@ -1,13 +1,14 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   Param,
-  Patch,
   ParseIntPipe,
-  UseInterceptors,
+  Patch,
+  Post,
   UploadedFile,
+  UseGuards,
+  UseInterceptors,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -16,6 +17,10 @@ import { extname } from 'path';
 import { IssuesService } from './issues.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueStatusDto } from './dto/update-issue-status.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 function editFileName(
   req: any,
@@ -50,7 +55,6 @@ function fileFilter(
   const isValidExt = allowedExt.includes(ext);
   const isValidMime = allowedMime.includes(file.mimetype);
 
-  // Accept if extension is valid. This avoids false rejections from inconsistent browser mimetypes.
   if (!isValidExt && !isValidMime) {
     return callback(
       new BadRequestException(
@@ -64,10 +68,12 @@ function fileFilter(
 }
 
 @Controller('issues')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class IssuesController {
   constructor(private readonly issues: IssuesService) {}
 
   @Post()
+  @Roles('ADMIN', 'TESTER', 'DEVELOPER')
   @UseInterceptors(
     FileInterceptor('attachment', {
       storage: diskStorage({
@@ -76,7 +82,7 @@ export class IssuesController {
       }),
       fileFilter,
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10 MB
+        fileSize: 10 * 1024 * 1024,
       },
     }),
   )
@@ -88,15 +94,32 @@ export class IssuesController {
   }
 
   @Get()
+  @Roles('ADMIN', 'DEVELOPER', 'TESTER')
   findAll() {
     return this.issues.findAll();
   }
 
+  @Get(':id')
+  @Roles('ADMIN', 'DEVELOPER', 'TESTER')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.issues.findOne(id);
+  }
+
   @Patch(':id/status')
+  @Roles('ADMIN', 'DEVELOPER')
   updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateIssueStatusDto,
   ) {
     return this.issues.updateStatus(id, body.status);
+  }
+
+  @Post(':id/comments')
+  @Roles('ADMIN', 'DEVELOPER', 'TESTER')
+  addComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: AddCommentDto,
+  ) {
+    return this.issues.addComment(id, body);
   }
 }
