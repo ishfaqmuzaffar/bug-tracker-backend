@@ -23,7 +23,7 @@ function editFileName(
   callback: (error: Error | null, filename: string) => void,
 ) {
   const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-  const ext = extname(file.originalname);
+  const ext = extname(file.originalname).toLowerCase();
   callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
 }
 
@@ -32,7 +32,10 @@ function fileFilter(
   file: Express.Multer.File,
   callback: (error: Error | null, acceptFile: boolean) => void,
 ) {
-  const allowed = [
+  const ext = extname(file.originalname).toLowerCase();
+
+  const allowedExt = ['.png', '.jpg', '.jpeg', '.pdf', '.txt', '.zip'];
+  const allowedMime = [
     'image/png',
     'image/jpeg',
     'image/jpg',
@@ -40,11 +43,19 @@ function fileFilter(
     'text/plain',
     'application/zip',
     'application/x-zip-compressed',
+    'multipart/x-zip',
+    'application/octet-stream',
   ];
 
-  if (!allowed.includes(file.mimetype)) {
+  const isValidExt = allowedExt.includes(ext);
+  const isValidMime = allowedMime.includes(file.mimetype);
+
+  // Accept if extension is valid. This avoids false rejections from inconsistent browser mimetypes.
+  if (!isValidExt && !isValidMime) {
     return callback(
-      new BadRequestException('Only PNG, JPG, PDF, TXT and ZIP files are allowed.') as any,
+      new BadRequestException(
+        'Only PNG, JPG, PDF, TXT and ZIP files are allowed.',
+      ) as any,
       false,
     );
   }
