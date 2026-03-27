@@ -17,7 +17,7 @@ export class AuthService {
       data: {
         email,
         password: hash,
-        role: 'USER', // you can change default later
+        role: 'USER',
       },
     });
 
@@ -29,13 +29,16 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
     const valid = await bcrypt.compare(password, user.password);
 
-    if (!valid) throw new UnauthorizedException('Invalid password');
+    if (!valid) {
+      throw new UnauthorizedException('Invalid password');
+    }
 
-    // ✅ FIX: include role in JWT
     const payload = {
       sub: user.id,
       email: user.email,
@@ -44,6 +47,11 @@ export class AuthService {
 
     return {
       token: this.jwt.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 }
