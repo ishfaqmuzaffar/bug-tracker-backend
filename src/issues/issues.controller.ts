@@ -93,6 +93,12 @@ export class IssuesController {
     return this.issues.create(body, attachment);
   }
 
+  @Get('stats')
+  @Roles('ADMIN', 'DEVELOPER', 'TESTER')
+  getStats() {
+    return this.issues.getStats();
+  }
+
   @Get()
   @Roles('ADMIN', 'DEVELOPER', 'TESTER')
   findAll() {

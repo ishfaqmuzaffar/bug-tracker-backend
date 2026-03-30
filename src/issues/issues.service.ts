@@ -44,6 +44,75 @@ export class IssuesService {
     }
   }
 
+  async getStats() {
+    try {
+      const [
+        totalIssues,
+        pendingIssues,
+        fixedIssues,
+        criticalIssues,
+        highPriorityIssues,
+        inProgressIssues,
+      ] = await Promise.all([
+        this.prisma.issue.count(),
+        this.prisma.issue.count({
+          where: {
+            status: {
+              equals: 'PENDING',
+              mode: 'insensitive',
+            },
+          },
+        }),
+        this.prisma.issue.count({
+          where: {
+            status: {
+              equals: 'FIXED',
+              mode: 'insensitive',
+            },
+          },
+        }),
+        this.prisma.issue.count({
+          where: {
+            priority: {
+              equals: 'CRITICAL',
+              mode: 'insensitive',
+            },
+          },
+        }),
+        this.prisma.issue.count({
+          where: {
+            priority: {
+              equals: 'HIGH',
+              mode: 'insensitive',
+            },
+          },
+        }),
+        this.prisma.issue.count({
+          where: {
+            status: {
+              equals: 'IN_PROGRESS',
+              mode: 'insensitive',
+            },
+          },
+        }),
+      ]);
+
+      return {
+        totalIssues,
+        pendingIssues,
+        fixedIssues,
+        criticalIssues,
+        highPriorityIssues,
+        inProgressIssues,
+      };
+    } catch (error: any) {
+      console.error('Stats error:', error);
+      throw new InternalServerErrorException(
+        error?.message || 'Failed to fetch stats.',
+      );
+    }
+  }
+
   async findAll() {
     try {
       return await this.prisma.issue.findMany({
