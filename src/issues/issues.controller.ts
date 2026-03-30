@@ -21,6 +21,7 @@ import { AddCommentDto } from './dto/add-comment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { Public } from '../auth/public.decorator';
 
 function editFileName(
   req: any,
@@ -93,8 +94,9 @@ export class IssuesController {
     return this.issues.create(body, attachment);
   }
 
+  // ✅ THIS IS THE FIX → PUBLIC ENDPOINT
   @Get('stats')
-  @Roles('ADMIN', 'DEVELOPER', 'TESTER')
+  @Public()
   getStats() {
     return this.issues.getStats();
   }
